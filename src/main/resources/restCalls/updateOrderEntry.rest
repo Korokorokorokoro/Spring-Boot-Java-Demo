@@ -1,0 +1,7 @@
+PUT http://localhost:8080/order/1
+Content-Type: application/json
+
+{
+  "details": "details updated",
+  "state": "CANCELLED"
+}

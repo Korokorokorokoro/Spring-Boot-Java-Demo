@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order API Tester</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, button { margin: 5px; padding: 8px; }
+        table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        button { cursor: pointer; }
+        .edit-input { width: 80%; }
+    </style>
+</head>
+<body>
+    <h1>Spring Boot + H2 Order API Tester</h1>
+
+    <h3>Add Order</h3>
+    <input type="text" id="details" placeholder="Enter details">
+    <button onclick="addOrder()">Add</button>
+
+    <h3>Search Orders</h3>
+    <input type="text" id="searchDetails" placeholder="Search by details">
+    <input type="text" id="searchState" placeholder="Search by state">
+    <button onclick="searchOrders()">Search</button>
+    <button onclick="getOrders()">Show All</button>
+
+    <h3>Orders</h3>
+    <table id="orderTable">
+        <thead>
+            <tr><th>ID</th><th>Details</th><th>State</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const API_URL = "http://localhost:8080/order";
+
+        async function getOrders() {
+            const res = await fetch(API_URL);
+            const orders = await res.json();
+            const tbody = document.querySelector("#orderTable tbody");
+            tbody.innerHTML = "";
+            orders.forEach(o => {
+                const row = `
+                    <tr>
+                        <td>${o.id}</td>
+                        <td>
+                            <input class="edit-input" type="text" id="details-${o.id}" value="${o.details}">
+                        </td>
+                        <td>
+                            <input class="edit-input" type="text" id="state-${o.id}" value="${o.state}">
+                        </td>
+                        <td>
+                            <button onclick="updateOrder(${o.id})">Update</button>
+                            <button onclick="deleteOrder(${o.id})" style="color:red;">Delete</button>
+                        </td>
+                    </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function searchOrders() {
+            const details = document.getElementById("searchDetails").value.trim();
+            const state = document.getElementById("searchState").value.trim();
+            let url = `${API_URL}/search`;
+            const params = [];
+            if (details) params.push(`details=${encodeURIComponent(details)}`);
+            if (state) params.push(`state=${encodeURIComponent(state)}`);
+            if (params.length > 0) url += '?' + params.join('&');
+            const res = await fetch(url);
+            const orders = await res.json();
+            const tbody = document.querySelector("#orderTable tbody");
+            tbody.innerHTML = "";
+            orders.forEach(o => {
+                const row = `
+                    <tr>
+                        <td>${o.id}</td>
+                        <td>
+                            <input class="edit-input" type="text" id="details-${o.id}" value="${o.details}">
+                        </td>
+                        <td>
+                            <input class="edit-input" type="text" id="state-${o.id}" value="${o.state}">
+                        </td>
+                        <td>
+                            <button onclick="updateOrder(${o.id})">Update</button>
+                            <button onclick="deleteOrder(${o.id})" style="color:red;">Delete</button>
+                        </td>
+                    </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        async function addOrder() {
+            const details = document.getElementById("details").value.trim();
+            if (!details) return alert("Please enter details");
+            await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ details })
+            });
+            document.getElementById("details").value = "";
+            getOrders();
+        }
+
+        async function updateOrder(id) {
+            const details = document.getElementById(`details-${id}`).value.trim();
+            const state = document.getElementById(`state-${id}`).value.trim().toUpperCase();
+            if (!details) return alert("Details cannot be empty");
+            if (!state) return alert("State cannot be empty");
+            const validStates = ['CREATED', 'CANCELLED', 'COMPLETED'];
+            if (!validStates.includes(state)) {
+                return alert(`Invalid state: "${state}". Valid options are: ${validStates.join(', ')}`);
+            }
+            await fetch(`${API_URL}/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id, details, state })
+            });
+            getOrders();
+        }
+
+        async function deleteOrder(id) {
+            if (!confirm("Are you sure you want to delete this order?")) return;
+            await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+            getOrders();
+        }
+
+        // Load orders on page load
+        getOrders();
+    </script>
+</body>
+</html>
