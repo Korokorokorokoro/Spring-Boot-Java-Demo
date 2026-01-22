@@ -92,33 +92,6 @@ JSON content negotiation
 
 
 -------------------------------
-Technology Stack Summary:
--------------------------------
-┌─────────────────────────────────────┐
-│   Presentation Layer (REST API)     │
-│   - Spring MVC                      │
-│   - @RestController                 │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│   Business Logic Layer              │
-│   - @Service (EmailService, SMS)    │
-│   - Spring Retry                    │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│   Data Access Layer                 │
-│   - Spring Data JPA                 │
-│   - @Repository                     │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│   Database                          │
-│   - H2 (in-memory)                  │
-└─────────────────────────────────────┘
-
-
--------------------------------
 Technical design decision explanations:
 -------------------------------
 
