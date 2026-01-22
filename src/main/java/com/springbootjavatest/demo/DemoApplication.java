@@ -4,12 +4,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.retry.annotation.EnableRetry;
 
 import com.springbootjavatest.demo.model.Order;
 import com.springbootjavatest.demo.repository.OrderRepository;
 
 // Main application class for Spring Boot demo application.
 @SpringBootApplication
+@EnableRetry
 public class DemoApplication {
 
 	public static void main(String[] args) {

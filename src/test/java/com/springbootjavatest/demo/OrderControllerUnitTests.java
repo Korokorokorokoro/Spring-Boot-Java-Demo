@@ -1,6 +1,7 @@
 package com.springbootjavatest.demo;
 
 import com.springbootjavatest.demo.controller.OrderController;
+import com.springbootjavatest.demo.exception.OrderNotFoundException;
 import com.springbootjavatest.demo.model.Order;
 import com.springbootjavatest.demo.model.OrderState;
 import com.springbootjavatest.demo.repository.OrderRepository;
@@ -58,8 +59,11 @@ public class OrderControllerUnitTests {
     @Test
     void getOrderById_returnsNotFound_whenMissing() {
         when(repo.findById(999L)).thenReturn(Optional.empty());
-        ResponseEntity<Order> resp = controller.getOrderById(999L);
-        assertEquals(404, resp.getStatusCode().value());
+        
+        // Now the controller throws OrderNotFoundException instead of returning NOT_FOUND
+        assertThrows(OrderNotFoundException.class, () -> {
+            controller.getOrderById(999L);
+        });
     }
 
     @Test
